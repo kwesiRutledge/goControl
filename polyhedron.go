@@ -7,54 +7,72 @@
 package goControl
 
 import (
-	"fmt"
-	la "gosl/la"
 	"errors"
+	"fmt"
+
+	"gonum.org/v1/gonum/mat"
 )
 
 type Polyhedron struct {
-	A la.Matrix
-	b la.Vector
+	A mat.Matrix
+	b mat.Vector
+}
+
+func (p *Polyhedron) Get_A() mat.Matrix {
+	return p.A
+}
+
+func (p *Polyhedron) Get_b() mat.Vector {
+	return p.b
 }
 
 /*
-	GetPolyhedron()
-	Is This Function Necessary?
+GetPolyhedron()
+Is This Function Necessary?
 */
-func GetPolyhedron() {
-	fmt.Println("Is this working?")
+func GetPolyhedron(AIn mat.Matrix, bIn mat.Vector) Polyhedron {
+	return Polyhedron{
+		A: AIn,
+		b: bIn,
+	}
 }
 
 /*
-	Dimension
-	Description:
-		Obtains the dimension of the input Polyhedron.
+Dimension
+Description:
+
+	Obtains the dimension of the input Polyhedron.
 */
 func (polyhedronIn Polyhedron) Dimension() int {
 
 	if polyhedronIn.Check() != nil {
 		//If this is not a valid Polyhedron, then return garbage.
-		return -1 
+		return -1
 	}
 
-	return polyhedronIn.A.N // The Matrix's .M field is the number of rows and the .N file is the number of columns
+	_, N := polyhedronIn.A.Dims()
+
+	return N // The Matrix's .M field is the number of rows and the .N file is the number of columns
 
 }
 
 /*
-	AreAorbUndefined
-	Description:
-		Returns true if either the matrix A or the vector b are undefined for the input Polyhedron.
+AreAorbUndefined
+Description:
+
+	Returns true if either the matrix A or the vector b are undefined for the input Polyhedron.
 */
 func (polyhedronIn Polyhedron) AreAorbUndefined() bool {
+	// Constants
+	M, N := polyhedronIn.A.Dims()
 
 	//Check if A has zero dimensions
-	if (polyhedronIn.A.M == 0) || (polyhedronIn.A.N == 0) || (len(polyhedronIn.A.Data) == 0) {
+	if (M == 0) || (N == 0) {
 		return true
 	}
 
 	//Check if b has zero dimensions
-	if (len(polyhedronIn.b) == 0) {
+	if polyhedronIn.b.Len() == 0 {
 		return true
 	}
 
@@ -63,12 +81,15 @@ func (polyhedronIn Polyhedron) AreAorbUndefined() bool {
 }
 
 /*
-	Check
-	Description:
-		Returns true if the Polytope is correct in all respects,
-		returns false otherwise.
+Check
+Description:
+
+	Returns true if the Polytope is correct in all respects,
+	returns false otherwise.
 */
 func (polyhedronIn Polyhedron) Check() error {
+	// Constants
+	M, _ := polyhedronIn.A.Dims()
 
 	//Check to see if the Polyhedron has been defined
 	if polyhedronIn.AreAorbUndefined() {
@@ -76,7 +97,7 @@ func (polyhedronIn Polyhedron) Check() error {
 	}
 
 	//Check to see if the dimensions of the A and b matrices are compatible!
-	if ( polyhedronIn.A.M != len(polyhedronIn.b) ) {
+	if M != polyhedronIn.b.Len() {
 		return errors.New("The dimensions of the A and b matrices are not compatible!")
 	}
 
@@ -92,11 +113,11 @@ func (polyhedronIn Polyhedron) Check() error {
 
 */
 
-func (polyhedronIn Polyhedron) Contains( targetObject interface{} ) bool {
+func (polyhedronIn Polyhedron) Contains(targetObject interface{}) bool {
 
 	// Check the type of the input object
 	switch v := targetObject.(type) {
-	case la.Vector:
+	case mat.Vector:
 		print(v)
 		return true
 	default:
