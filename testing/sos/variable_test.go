@@ -151,3 +151,81 @@ func TestVariable_Multiply3(t *testing.T) {
 		t.Errorf("The address of variable should be %v; Received %v", &sos_var2, prod1.Variables[1])
 	}
 }
+
+/*
+TestVariable_FindVariableInSlice1
+Description:
+
+	Tests to see if there is a variable in a slice of objects (objects model the empty interface).
+	Example slice contains a Variable object.
+*/
+func TestVariable_FindVariableInSlice1(t *testing.T) {
+	// Constants
+
+	crazySlice := []interface{}{
+		"total",
+		2.3,
+		sos.Variable{Name: "Lupe Fiasco"},
+	}
+
+	// Algorithm
+	if sos.FindVariableInSlice(crazySlice) != 2 {
+		t.Errorf("The variable was found at index %v; expected 2.", sos.FindVariableInSlice(crazySlice))
+	}
+}
+
+/*
+TestVariable_FindVariableInSlice2
+Description:
+
+	Tests to see if there is a variable in a slice of objects (objects model the empty interface).
+	Example slice DOES NOT contain a Variable object.
+*/
+func TestVariable_FindVariableInSlice2(t *testing.T) {
+	// Constants
+
+	crazySlice := []interface{}{
+		"total",
+		2.3,
+		sos.Monomial{},
+	}
+
+	// Algorithm
+	if sos.FindVariableInSlice(crazySlice) != -1 {
+		t.Errorf("The variable was found at index %v; expected -1.", sos.FindVariableInSlice(crazySlice))
+	}
+}
+
+/*
+TestVariable_IsEqualTo1
+Description:
+
+	Tests to see if the toolbox recognizes that two variables with THE SAME NAME are considered equal.
+*/
+func TestVariable_IsEqualTo1(t *testing.T) {
+	// Constants
+	v1 := sos.Variable{"x"}
+	v2 := sos.Variable{"x"}
+
+	// Algorithm
+	if !v1.IsEqualTo(&v2) {
+		t.Errorf("The two variables %v and %v were declared to be different!", v1, v2)
+	}
+}
+
+/*
+TestVariable_IsEqualTo2
+Description:
+
+	Tests to see if the toolbox recognizes that two variables with DIFFERENT NAMES are considered not equal.
+*/
+func TestVariable_IsEqualTo2(t *testing.T) {
+	// Constants
+	v1 := sos.Variable{"x"}
+	v2 := sos.Variable{"y"}
+
+	// Algorithm
+	if v1.IsEqualTo(&v2) {
+		t.Errorf("The two variables %v and %v were declared to be the same!", v1, v2)
+	}
+}
