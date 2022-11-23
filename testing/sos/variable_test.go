@@ -68,11 +68,12 @@ func TestVariable_Multiply1(t *testing.T) {
 	}
 
 	// Test
-	prod1, err := sos_var1.Multiply(coeff_val)
+	prodOut, err := sos_var1.Multiply(coeff_val)
 	if err != nil {
 		t.Errorf("There was an error multiplying a variable with a coefficient! %v", err)
 	}
 
+	prod1, _ := prodOut.(*sos.Monomial)
 	if prod1.Coefficient != coeff_val {
 		t.Errorf("The coefficient was %v; Expected %v", prod1.Coefficient, coeff_val)
 	}
@@ -99,11 +100,12 @@ func TestVariable_Multiply2(t *testing.T) {
 	}
 
 	// Test
-	prod1, err := sos_var1.Multiply(sos_var2)
+	prodOut, err := sos_var1.Multiply(sos_var2)
 	if err != nil {
 		t.Errorf("There was an error multiplying a variable with a coefficient! %v", err)
 	}
 
+	prod1, _ := prodOut.(*sos.Monomial)
 	if prod1.Coefficient != 1.0 {
 		t.Errorf("The coefficient was %v; Expected 1", prod1.Coefficient)
 	}
@@ -134,11 +136,12 @@ func TestVariable_Multiply3(t *testing.T) {
 	}
 
 	// Test
-	prod1, err := sos_var1.Multiply(&sos_var2)
+	prodOut, err := sos_var1.Multiply(&sos_var2)
 	if err != nil {
 		t.Errorf("There was an error multiplying a variable with a coefficient! %v", err)
 	}
 
+	prod1, _ := prodOut.(*sos.Monomial)
 	if prod1.Coefficient != 1.0 {
 		t.Errorf("The coefficient was %v; Expected 1", prod1.Coefficient)
 	}
@@ -150,6 +153,92 @@ func TestVariable_Multiply3(t *testing.T) {
 	if prod1.Variables[1] != &sos_var2 {
 		t.Errorf("The address of variable should be %v; Received %v", &sos_var2, prod1.Variables[1])
 	}
+}
+
+/*
+TestVariable_Multiply4
+Description:
+
+	Tests how well the multiplication term works with Monomial input.
+*/
+func TestVariable_Multiply4(t *testing.T) {
+	// Constants
+	sos_var1 := sos.Variable{
+		Name: "James",
+	}
+	sos_var2 := sos.Variable{
+		Name: "Madison",
+	}
+	monom1 := sos.Monomial{
+		Coefficient: 3.0,
+		Variables:   []*sos.Variable{&sos_var1, &sos_var2},
+		Exponents:   []int{5, 7},
+	}
+
+	// Test
+	prodOut, err := sos_var1.Multiply(monom1)
+	if err != nil {
+		t.Errorf("There was an error multiplying a variable with a monomial: %v", err)
+	}
+
+	prod1, _ := prodOut.(*sos.Monomial)
+	if prod1.Coefficient != monom1.Coefficient {
+		t.Errorf("The coefficient was %v; Expected %v", prod1.Coefficient, monom1.Coefficient)
+	}
+
+	for varIndex := 0; varIndex < len(prod1.Variables); varIndex++ {
+		if prod1.Variables[varIndex] != monom1.Variables[varIndex] {
+			t.Errorf("The variable at index %v should be %v; Received %v", varIndex, prod1.Variables[varIndex], monom1.Variables[varIndex])
+		}
+	}
+
+	if prod1.Exponents[0] != monom1.Exponents[0]+1 {
+		t.Errorf("Expected for product exponent at 0 to be %v; received %v", monom1.Exponents[0]+1, prod1.Exponents[0])
+	}
+
+}
+
+/*
+TestVariable_Multiply5
+Description:
+
+	Tests how well the multiplication term works with Monomial Pointer input.
+*/
+func TestVariable_Multiply5(t *testing.T) {
+	// Constants
+	sos_var1 := sos.Variable{
+		Name: "James",
+	}
+	sos_var2 := sos.Variable{
+		Name: "Madison",
+	}
+	monom1 := sos.Monomial{
+		Coefficient: 3.0,
+		Variables:   []*sos.Variable{&sos_var1, &sos_var2},
+		Exponents:   []int{5, 7},
+	}
+
+	// Test
+	prodOut, err := sos_var1.Multiply(&monom1)
+	if err != nil {
+		t.Errorf("There was an error multiplying a variable with a monomial: %v", err)
+	}
+
+	prod1, _ := prodOut.(*sos.Monomial)
+	if prod1.Coefficient != monom1.Coefficient {
+		t.Errorf("The coefficient was %v; Expected %v", prod1.Coefficient, monom1.Coefficient)
+	}
+
+	for varIndex := 0; varIndex < len(prod1.Variables); varIndex++ {
+		if prod1.Variables[varIndex] != monom1.Variables[varIndex] {
+			t.Errorf("The variable at index %v should be %v; Received %v", varIndex, prod1.Variables[varIndex], monom1.Variables[varIndex])
+		}
+	}
+
+	if prod1.Exponents[0] != monom1.Exponents[0]+1 {
+		t.Errorf("Expected for product exponent at 0 to be %v; received %v", monom1.Exponents[0]+1, prod1.Exponents[0])
+	}
+
 }
 
 /*

@@ -11,7 +11,7 @@ type Polynomial struct {
 }
 
 type PolynomialInterface interface {
-	Find(sliceIn []interface{}) int
+	Multiply(terms ...interface{}) (PolynomialInterface, error)
 }
 
 // Functions

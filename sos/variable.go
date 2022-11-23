@@ -49,7 +49,7 @@ Description:
 
 	Multiplies the variable v with some value (either a constant or a )
 */
-func (v *Variable) Multiply(terms ...interface{}) (Monomial, error) {
+func (v *Variable) Multiply(terms ...interface{}) (PolynomialInterface, error) {
 	// Constants
 
 	// Error Handling and Recursion
@@ -65,14 +65,14 @@ func (v *Variable) Multiply(terms ...interface{}) (Monomial, error) {
 			// First, check for any errors.
 			if followingIndex != 0 { // If error exists, then check it and maybe throw something!
 				if termAsError, ok := terms[1].(error); ok && (termAsError != nil) { // Converted extra term to an error
-					return Monomial{}, termAsError // throw error
+					return &Monomial{}, termAsError // throw error
 				}
 			}
 
 			// Second, compute sub-product.
 			m, err := v.Multiply(terms[0])
 			if err != nil {
-				return Monomial{}, err
+				return &Monomial{}, err
 			}
 
 			// Compute Product Among the
@@ -80,7 +80,7 @@ func (v *Variable) Multiply(terms ...interface{}) (Monomial, error) {
 
 		} else {
 			if termAsError, ok := terms[1].(error); ok && (termAsError != nil) { // Converted extra term to an error
-				return Monomial{}, termAsError // throw error
+				return &Monomial{}, termAsError // throw error
 			}
 		}
 	}
@@ -89,7 +89,7 @@ func (v *Variable) Multiply(terms ...interface{}) (Monomial, error) {
 	term1 := terms[0]
 	switch term1.(type) {
 	case float64:
-		return Monomial{
+		return &Monomial{
 			Coefficient: term1.(float64),
 			Variables:   []*Variable{v},
 			Exponents:   []int{1},
@@ -97,21 +97,48 @@ func (v *Variable) Multiply(terms ...interface{}) (Monomial, error) {
 	case Variable:
 		termAsV, _ := term1.(Variable)
 
-		return Monomial{
+		return &Monomial{
 			Coefficient: 1.0,
 			Variables:   []*Variable{v, &termAsV},
 			Exponents:   []int{1, 1},
 		}, nil
 
 	case *Variable:
-		return Monomial{
+		return &Monomial{
 			Coefficient: 1.0,
 			Variables:   []*Variable{v, term1.(*Variable)},
 			Exponents:   []int{1, 1},
 		}, nil
+	case Monomial:
+		termAsMonom, _ := term1.(Monomial)
+		monomialOut := termAsMonom.Copy()
+
+		vIndex := v.FoundIn(monomialOut.Variables)
+		if vIndex != -1 { // v is already in the monomial
+			monomialOut.Exponents[vIndex] += 1
+		} else {
+			monomialOut.Variables = append(monomialOut.Variables, v)
+			monomialOut.Exponents = append(monomialOut.Exponents, 1)
+		}
+
+		return &monomialOut, nil
+
+	case *Monomial:
+		termAsMonom, _ := term1.(*Monomial)
+		monomialOut := termAsMonom.Copy()
+
+		vIndex := v.FoundIn(monomialOut.Variables)
+		if vIndex != -1 { // v is already in the monomial
+			monomialOut.Exponents[vIndex] += 1
+		} else {
+			monomialOut.Variables = append(monomialOut.Variables, v)
+			monomialOut.Exponents = append(monomialOut.Exponents, 1)
+		}
+
+		return &monomialOut, nil
 
 	default:
-		return Monomial{}, fmt.Errorf("The input type %T was not expected!", term1)
+		return &Monomial{}, fmt.Errorf("The input type %T was not expected!", term1)
 	}
 }
 

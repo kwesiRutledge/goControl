@@ -26,7 +26,7 @@ type Monomial struct {
 Multiply
 Description:
 */
-func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
+func (m *Monomial) Multiply(terms ...interface{}) (PolynomialInterface, error) {
 	// Constants
 
 	// Error Handling and Recursion
@@ -42,14 +42,14 @@ func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
 			// First, check for any errors.
 			if followingIndex != 0 { // If error exists, then check it and maybe throw something!
 				if termAsError, ok := terms[1].(error); ok && (termAsError != nil) { // Converted extra term to an error
-					return Monomial{}, termAsError // throw error
+					return &Monomial{}, termAsError // throw error
 				}
 			}
 
 			// Second, compute sub-product.
 			m, err := m.Multiply(terms[0])
 			if err != nil {
-				return Monomial{}, err
+				return &Monomial{}, err
 			}
 
 			// Compute Product Among the
@@ -57,7 +57,7 @@ func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
 
 		} else {
 			if termAsError, ok := terms[1].(error); ok && (termAsError != nil) { // Converted extra term to an error
-				return Monomial{}, termAsError // throw error
+				return &Monomial{}, termAsError // throw error
 			}
 		}
 	}
@@ -66,7 +66,7 @@ func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
 	term1 := terms[0] // Collect Term 1
 	switch term1.(type) {
 	case float64:
-		return Monomial{
+		return &Monomial{
 			Coefficient: term1.(float64) * m.Coefficient,
 			Variables:   m.Variables,
 			Exponents:   m.Exponents,
@@ -92,7 +92,7 @@ func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
 			product.Exponents = append(product.Exponents, 1)
 		}
 
-		return product, nil
+		return &product, nil
 
 	case *Variable:
 		product := Monomial{Coefficient: m.Coefficient, Variables: m.Variables, Exponents: m.Exponents}
@@ -114,7 +114,7 @@ func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
 			product.Exponents = append(product.Exponents, 1)
 		}
 
-		return product, nil
+		return &product, nil
 
 	case Monomial:
 		termAsMonom, _ := term1.(Monomial)
@@ -122,32 +122,36 @@ func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
 		// Create Product
 		product := m.Copy()
 		fmt.Println(termAsMonom)
-		product, err := product.Multiply(termAsMonom.Coefficient)
+		productPointer, err := product.Multiply(termAsMonom.Coefficient)
+		product2, _ := productPointer.(*Monomial)
+
 		if err != nil {
-			return product, err
+			return product2, err
 		}
 		for varIndex := 0; varIndex < len(termAsMonom.Variables); varIndex++ {
 			varInTAM := termAsMonom.Variables[varIndex]
 
-			indexOfvIT := varInTAM.FoundIn(product.Variables)
+			indexOfvIT := varInTAM.FoundIn(product2.Variables)
 			if indexOfvIT != -1 {
-				product.Exponents[indexOfvIT] += termAsMonom.Exponents[varIndex]
+				product2.Exponents[indexOfvIT] += termAsMonom.Exponents[varIndex]
 			} else {
-				product.Variables = append(product.Variables, varInTAM)
-				product.Exponents = append(product.Exponents, termAsMonom.Exponents[varIndex])
+				product2.Variables = append(product2.Variables, varInTAM)
+				product2.Exponents = append(product2.Exponents, termAsMonom.Exponents[varIndex])
 			}
 
 			fmt.Println(termAsMonom)
 
 		}
-		return product, nil
+		return product2, nil
 
 	case *Monomial:
 		termAsMonom, _ := term1.(*Monomial)
 
 		// Create Product
-		product := m.Copy()
-		product, err := product.Multiply(termAsMonom.Coefficient)
+		tempProduct := m.Copy()
+		productPointer, err := tempProduct.Multiply(termAsMonom.Coefficient)
+		product, _ := productPointer.(*Monomial)
+
 		if err != nil {
 			return product, err
 		}
@@ -166,7 +170,7 @@ func (m *Monomial) Multiply(terms ...interface{}) (Monomial, error) {
 		return product, nil
 
 	default:
-		return Monomial{}, fmt.Errorf("The input type %T was not expected!", term1)
+		return &Monomial{}, fmt.Errorf("The input type %T was not expected!", term1)
 	}
 }
 
@@ -215,4 +219,31 @@ func (m *Monomial) Copy() Monomial {
 	copy(monomOut.Exponents, m.Exponents)
 
 	return monomOut
+}
+
+/*
+String
+Description:
+
+	Creates a string using the names of the variables in the monomial.
+*/
+func (m *Monomial) String() string {
+	// Constants
+	numVars := len(m.Variables)
+
+	// Create String
+	stringOut := ""
+	stringOut = fmt.Sprintf("%v", m.Coefficient)
+	for varIndex := 0; varIndex < numVars; varIndex++ {
+		switch {
+		case m.Exponents[varIndex] == 1:
+			stringOut = fmt.Sprintf("%v %v", stringOut, m.Variables[varIndex].String())
+		case m.Exponents[varIndex] == 0:
+		default:
+			stringOut = fmt.Sprintf("%v (%v)^%v", stringOut, m.Variables[varIndex].String(), m.Exponents[varIndex])
+		}
+	}
+
+	return stringOut
+
 }
