@@ -1,11 +1,11 @@
-package sos_test
+package symbolic_test
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/kwesiRutledge/goControl/sos"
+	"github.com/kwesiRutledge/goControl/symbolic"
 )
 
 /*
@@ -21,13 +21,13 @@ func TestMonomial_FindMonomialInSlice1(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Variable{Name: "Lupe Fiasco"},
-		sos.Monomial{},
+		symbolic.Variable{Name: "Lupe Fiasco"},
+		symbolic.Monomial{},
 	}
 
 	// Algorithm
-	if sos.FindMonomialInSlice(crazySlice) != 3 {
-		t.Errorf("The monomial was found at index %v; expected 3.", sos.FindMonomialInSlice(crazySlice))
+	if symbolic.FindMonomialInSlice(crazySlice) != 3 {
+		t.Errorf("The monomial was found at index %v; expected 3.", symbolic.FindMonomialInSlice(crazySlice))
 	}
 }
 
@@ -44,12 +44,12 @@ func TestMonomial_FindMonomialInSlice2(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Variable{Name: "Lupe Fiasco"},
+		symbolic.Variable{Name: "Lupe Fiasco"},
 	}
 
 	// Algorithm
-	if sos.FindMonomialInSlice(crazySlice) != -1 {
-		t.Errorf("The variable was found at index %v; expected -1.", sos.FindMonomialInSlice(crazySlice))
+	if symbolic.FindMonomialInSlice(crazySlice) != -1 {
+		t.Errorf("The variable was found at index %v; expected -1.", symbolic.FindMonomialInSlice(crazySlice))
 	}
 }
 
@@ -61,12 +61,12 @@ Description:
 */
 func TestMonomial_Multiply1(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"y"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"y"}
 	coeff1 := 1.0
-	m1 := sos.Monomial{
+	m1 := symbolic.Monomial{
 		Coefficient: coeff1,
-		Variables:   []*sos.Variable{&v1, &v2},
+		Variables:   []symbolic.Variable{v1, v2},
 		Exponents:   []int{1, 1},
 	}
 
@@ -78,8 +78,8 @@ func TestMonomial_Multiply1(t *testing.T) {
 		t.Errorf("There was an error computing the product of a monomial: %v", err)
 	}
 
-	m2, _ := prodOut.(*sos.Monomial)
-	if m2.Coefficient != coeff2 {
+	m2, ok := prodOut.(symbolic.Monomial)
+	if (m2.Coefficient != coeff2) || (!ok) {
 		t.Errorf("Expected product's coefficient to change to %v; received %v", coeff2, m2.Coefficient)
 	}
 }
@@ -92,12 +92,12 @@ Description:
 */
 func TestMonomial_Multiply2(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"y"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"y"}
 	coeff1 := 1.0
-	m1 := sos.Monomial{
+	m1 := symbolic.Monomial{
 		Coefficient: coeff1,
-		Variables:   []*sos.Variable{&v1, &v2},
+		Variables:   []symbolic.Variable{v1, v2},
 		Exponents:   []int{1, 1},
 	}
 
@@ -107,7 +107,10 @@ func TestMonomial_Multiply2(t *testing.T) {
 		t.Errorf("There was an error computing the product of a monomial: %v", err)
 	}
 
-	m2, _ := prodOut.(*sos.Monomial)
+	m2, ok := prodOut.(symbolic.Monomial)
+	if !ok {
+		t.Errorf("The output of the Multiply was not of type Monomial; received %T", prodOut)
+	}
 	if m2.Exponents[1] != 2 {
 		t.Errorf("Expected product's exponent value to change to 2; received %v", m2.Exponents[1])
 	}
@@ -121,22 +124,26 @@ Description:
 */
 func TestMonomial_Multiply3(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"y"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"y"}
 	coeff1 := 1.0
-	m1 := sos.Monomial{
+	m1 := symbolic.Monomial{
 		Coefficient: coeff1,
-		Variables:   []*sos.Variable{&v1, &v2},
+		Variables:   []symbolic.Variable{v1, v2},
 		Exponents:   []int{1, 1},
 	}
 
 	// Algorithm
-	prodOut, err := m1.Multiply(&v2)
+	prodOut, err := m1.Multiply(v2)
 	if err != nil {
 		t.Errorf("There was an error computing the product of a monomial: %v", err)
 	}
 
-	m2, _ := prodOut.(*sos.Monomial)
+	m2, ok := prodOut.(symbolic.Monomial)
+	if !ok {
+		t.Errorf("The output of the Multiply was not of type Monomial; received %T", prodOut)
+	}
+
 	if m2.Exponents[1] != 2 {
 		t.Errorf("Expected product's exponent value to change to 2; received %v", m2.Exponents[1])
 	}
@@ -151,12 +158,12 @@ Description:
 */
 func TestMonomial_Multiply4(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"y"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"y"}
 	coeff1 := 1.0
-	m1 := sos.Monomial{
+	m1 := symbolic.Monomial{
 		Coefficient: coeff1,
-		Variables:   []*sos.Variable{&v1, &v2},
+		Variables:   []symbolic.Variable{v1, v2},
 		Exponents:   []int{1, 1},
 	}
 
@@ -181,12 +188,12 @@ Description:
 */
 func TestMonomial_Multiply5(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"y"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"y"}
 	coeff1 := 2.0
-	m1 := sos.Monomial{
+	m1 := symbolic.Monomial{
 		Coefficient: coeff1,
-		Variables:   []*sos.Variable{&v1, &v2},
+		Variables:   []symbolic.Variable{v1, v2},
 		Exponents:   []int{1, 1},
 	}
 
@@ -196,7 +203,7 @@ func TestMonomial_Multiply5(t *testing.T) {
 		t.Errorf("There was an error multiplying the two monomials: %v", err)
 	}
 
-	m2, _ := prodOut.(*sos.Monomial)
+	m2, _ := prodOut.(symbolic.Monomial)
 	if m2.Coefficient != m1.Coefficient*m1.Coefficient {
 		t.Errorf("Expected for exponent to be %v^2; received %v", m1.Coefficient, m2.Coefficient)
 	}
@@ -217,18 +224,18 @@ Description:
 */
 func TestMonomial_Multiply6(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"y"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"y"}
 	coeff1 := 2.0
-	m1 := sos.Monomial{
+	m1 := symbolic.Monomial{
 		Coefficient: coeff1,
-		Variables:   []*sos.Variable{&v1, &v2},
+		Variables:   []symbolic.Variable{v1, v2},
 		Exponents:   []int{1, 1},
 	}
 	coeff2 := 3.0
-	m2 := sos.Monomial{
+	m2 := symbolic.Monomial{
 		Coefficient: coeff2,
-		Variables:   []*sos.Variable{&v1, &v2},
+		Variables:   []symbolic.Variable{v1, v2},
 		Exponents:   []int{2, 3},
 	}
 
@@ -238,7 +245,11 @@ func TestMonomial_Multiply6(t *testing.T) {
 		t.Errorf("There was an error multiplying the two monomials: %v", err)
 	}
 
-	m3, _ := prodOut.(*sos.Monomial)
+	m3, ok := prodOut.(symbolic.Monomial)
+	if !ok {
+		t.Errorf("The output of the Multiply was not of type Monomial; received %T", prodOut)
+	}
+
 	if m3.Coefficient != m1.Coefficient*m2.Coefficient {
 		t.Errorf("Expected for exponent to be %v^2; received %v", m1.Coefficient, m2.Coefficient)
 	}
@@ -259,12 +270,12 @@ Description:
 */
 func TestMonomial_String1(t *testing.T) {
 	// Constants
-	x := sos.Variable{"x"}
-	y := sos.Variable{"y"}
+	x := symbolic.Variable{"x"}
+	y := symbolic.Variable{"y"}
 
-	monom1 := sos.Monomial{
+	monom1 := symbolic.Monomial{
 		Coefficient: 2.0,
-		Variables:   []*sos.Variable{&x, &y},
+		Variables:   []symbolic.Variable{x, y},
 		Exponents:   []int{3, 7},
 	}
 
@@ -291,12 +302,12 @@ Description:
 */
 func TestMonomial_String2(t *testing.T) {
 	// Constants
-	x := sos.Variable{"x"}
-	y := sos.Variable{"y"}
+	x := symbolic.Variable{"x"}
+	y := symbolic.Variable{"y"}
 
-	monom1 := sos.Monomial{
+	monom1 := symbolic.Monomial{
 		Coefficient: 2.0,
-		Variables:   []*sos.Variable{&x, &y},
+		Variables:   []symbolic.Variable{x, y},
 		Exponents:   []int{3, 1},
 	}
 

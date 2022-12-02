@@ -1,9 +1,9 @@
-package sos_test
+package symbolic_test
 
 import (
 	"testing"
 
-	"github.com/kwesiRutledge/goControl/sos"
+	"github.com/kwesiRutledge/goControl/symbolic"
 )
 
 /*
@@ -19,14 +19,14 @@ func TestPolynomial_FindPolynomialInSlice1(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Variable{Name: "Lupe Fiasco"},
-		sos.Monomial{},
-		sos.Polynomial{},
+		symbolic.Variable{Name: "Lupe Fiasco"},
+		symbolic.Monomial{},
+		symbolic.Polynomial{},
 	}
 
 	// Algorithm
-	if sos.FindPolynomialInSlice(crazySlice) != 4 {
-		t.Errorf("The monomial was found at index %v; expected 4.", sos.FindPolynomialInSlice(crazySlice))
+	if symbolic.FindPolynomialInSlice(crazySlice) != 4 {
+		t.Errorf("The monomial was found at index %v; expected 4.", symbolic.FindPolynomialInSlice(crazySlice))
 	}
 }
 
@@ -43,13 +43,13 @@ func TestPolynomial_FindPolynomialInSlice2(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Variable{Name: "Lupe Fiasco"},
-		sos.Monomial{},
+		symbolic.Variable{Name: "Lupe Fiasco"},
+		symbolic.Monomial{},
 	}
 
 	// Algorithm
-	if sos.FindPolynomialInSlice(crazySlice) != -1 {
-		t.Errorf("The variable was found at index %v; expected -1.", sos.FindPolynomialInSlice(crazySlice))
+	if symbolic.FindPolynomialInSlice(crazySlice) != -1 {
+		t.Errorf("The variable was found at index %v; expected -1.", symbolic.FindPolynomialInSlice(crazySlice))
 	}
 }
 
@@ -66,14 +66,14 @@ func TestPolynomial_FindPolynomialLikeObject1(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Variable{Name: "Lupe Fiasco"},
-		sos.Monomial{},
-		sos.Polynomial{},
+		symbolic.Variable{Name: "Lupe Fiasco"},
+		symbolic.Monomial{},
+		symbolic.Polynomial{},
 	}
 
 	// Algorithm
-	if sos.FindPolynomialLikeObject(crazySlice) != 2 {
-		t.Errorf("The monomial was found at index %v; expected 2.", sos.FindPolynomialLikeObject(crazySlice))
+	if symbolic.FindPolynomialLikeObject(crazySlice) != 2 {
+		t.Errorf("The monomial was found at index %v; expected 2.", symbolic.FindPolynomialLikeObject(crazySlice))
 	}
 }
 
@@ -90,14 +90,14 @@ func TestPolynomial_FindPolynomialLikeObject2(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Monomial{},
-		sos.Variable{Name: "Lupe Fiasco"},
-		sos.Polynomial{},
+		symbolic.Monomial{},
+		symbolic.Variable{Name: "Lupe Fiasco"},
+		symbolic.Polynomial{},
 	}
 
 	// Algorithm
-	if sos.FindPolynomialLikeObject(crazySlice) != 2 {
-		t.Errorf("The monomial was found at index %v; expected 2.", sos.FindPolynomialLikeObject(crazySlice))
+	if symbolic.FindPolynomialLikeObject(crazySlice) != 2 {
+		t.Errorf("The monomial was found at index %v; expected 2.", symbolic.FindPolynomialLikeObject(crazySlice))
 	}
 }
 
@@ -114,13 +114,13 @@ func TestPolynomial_FindPolynomialLikeObject3(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Polynomial{},
-		sos.Monomial{},
-		sos.Variable{Name: "Lupe Fiasco"},
+		symbolic.Polynomial{},
+		symbolic.Monomial{},
+		symbolic.Variable{Name: "Lupe Fiasco"},
 	}
 
 	// Algorithm
-	if sos.FindPolynomialLikeObject(crazySlice) != 2 {
-		t.Errorf("The monomial was found at index %v; expected 2.", sos.FindPolynomialLikeObject(crazySlice))
+	if symbolic.FindPolynomialLikeObject(crazySlice) != 2 {
+		t.Errorf("The monomial was found at index %v; expected 2.", symbolic.FindPolynomialLikeObject(crazySlice))
 	}
 }

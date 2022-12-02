@@ -1,4 +1,4 @@
-package sos
+package symbolic
 
 import "fmt"
 
@@ -13,7 +13,7 @@ Type Definitions
 */
 
 type Monomial struct {
-	Variables   []*Variable
+	Variables   []Variable
 	Exponents   []int
 	Coefficient float64
 }
@@ -26,7 +26,7 @@ type Monomial struct {
 Multiply
 Description:
 */
-func (m *Monomial) Multiply(terms ...interface{}) (PolynomialInterface, error) {
+func (m Monomial) Multiply(terms ...interface{}) (Expression, error) {
 	// Constants
 
 	// Error Handling and Recursion
@@ -66,20 +66,21 @@ func (m *Monomial) Multiply(terms ...interface{}) (PolynomialInterface, error) {
 	term1 := terms[0] // Collect Term 1
 	switch term1.(type) {
 	case float64:
-		return &Monomial{
-			Coefficient: term1.(float64) * m.Coefficient,
-			Variables:   m.Variables,
-			Exponents:   m.Exponents,
-		}, nil
+		term1AsFloat, _ := term1.(float64)
+		product := m.Copy()
+		product.Coefficient *= term1AsFloat
+
+		return product, nil
 	case Variable:
 		termAsV, _ := term1.(Variable)
-		product := Monomial{Coefficient: m.Coefficient, Variables: m.Variables, Exponents: m.Exponents}
+		// Copy monomial into product
+		product := m.Copy()
 
 		// Try to find termAsV in input monomials variables
 		tavFoundAt := -1
 		for varIndex := 0; varIndex < len(product.Variables); varIndex++ {
 			tempVar := product.Variables[varIndex]
-			if tempVar.IsEqualTo(&termAsV) {
+			if tempVar == termAsV {
 				tavFoundAt = varIndex
 			}
 		}
@@ -88,20 +89,21 @@ func (m *Monomial) Multiply(terms ...interface{}) (PolynomialInterface, error) {
 		if tavFoundAt != -1 {
 			product.Exponents[tavFoundAt] += 1
 		} else {
-			product.Variables = append(product.Variables, &termAsV)
+			product.Variables = append(product.Variables, termAsV)
 			product.Exponents = append(product.Exponents, 1)
 		}
 
-		return &product, nil
+		return product, nil
 
 	case *Variable:
-		product := Monomial{Coefficient: m.Coefficient, Variables: m.Variables, Exponents: m.Exponents}
+		product := m.Copy()
+		term1AsVPointer, _ := term1.(*Variable)
 
 		// Try to find termAsV in input monomials variables
 		tavFoundAt := -1
 		for varIndex := 0; varIndex < len(product.Variables); varIndex++ {
 			tempVar := product.Variables[varIndex]
-			if tempVar.IsEqualTo(term1.(*Variable)) {
+			if tempVar.IsEqualTo(*term1AsVPointer) {
 				tavFoundAt = varIndex
 			}
 		}
@@ -110,39 +112,40 @@ func (m *Monomial) Multiply(terms ...interface{}) (PolynomialInterface, error) {
 		if tavFoundAt != -1 {
 			product.Exponents[tavFoundAt] += 1
 		} else {
-			product.Variables = append(product.Variables, term1.(*Variable))
+			product.Variables = append(product.Variables, term1.(Variable))
 			product.Exponents = append(product.Exponents, 1)
 		}
 
-		return &product, nil
+		return product, nil
 
 	case Monomial:
 		termAsMonom, _ := term1.(Monomial)
 
 		// Create Product
-		product := m.Copy()
-		fmt.Println(termAsMonom)
-		productPointer, err := product.Multiply(termAsMonom.Coefficient)
-		product2, _ := productPointer.(*Monomial)
-
+		productOut, err := m.Multiply(termAsMonom.Coefficient)
 		if err != nil {
-			return product2, err
+			return productOut, err
 		}
+		product, _ := productOut.(Monomial) // Convert to Monomial
+		println(fmt.Sprintf("m = %v", m))
+		println(fmt.Sprintf("product after first coefficient multiplication: %v", product))
+
 		for varIndex := 0; varIndex < len(termAsMonom.Variables); varIndex++ {
 			varInTAM := termAsMonom.Variables[varIndex]
 
-			indexOfvIT := varInTAM.FoundIn(product2.Variables)
+			indexOfvIT := varInTAM.FoundIn(product.Variables)
 			if indexOfvIT != -1 {
-				product2.Exponents[indexOfvIT] += termAsMonom.Exponents[varIndex]
+				product.Exponents[indexOfvIT] += termAsMonom.Exponents[varIndex]
 			} else {
-				product2.Variables = append(product2.Variables, varInTAM)
-				product2.Exponents = append(product2.Exponents, termAsMonom.Exponents[varIndex])
+				product.Variables = append(product.Variables, varInTAM)
+				product.Exponents = append(product.Exponents, termAsMonom.Exponents[varIndex])
 			}
 
-			fmt.Println(termAsMonom)
+			println(fmt.Sprintf("m = %v", m))
+			println(fmt.Sprintf("product after %vth loop coefficient multiplication: %v", varIndex, product))
 
 		}
-		return product2, nil
+		return product, nil
 
 	case *Monomial:
 		termAsMonom, _ := term1.(*Monomial)
@@ -203,7 +206,7 @@ Description:
 
 	Doing this to avoid strange pointer and reference issues when creating new monomials.
 */
-func (m *Monomial) Copy() Monomial {
+func (m Monomial) Copy() Monomial {
 	// Constants
 
 	// Algorithm
@@ -211,7 +214,7 @@ func (m *Monomial) Copy() Monomial {
 	monomOut.Coefficient = m.Coefficient
 
 	// Copy slice of Variable pointers
-	monomOut.Variables = make([]*Variable, len(m.Variables))
+	monomOut.Variables = make([]Variable, len(m.Variables))
 	copy(monomOut.Variables, m.Variables)
 
 	// Copy slice of exponents
@@ -227,7 +230,7 @@ Description:
 
 	Creates a string using the names of the variables in the monomial.
 */
-func (m *Monomial) String() string {
+func (m Monomial) String() string {
 	// Constants
 	numVars := len(m.Variables)
 

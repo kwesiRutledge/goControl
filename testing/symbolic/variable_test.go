@@ -1,14 +1,14 @@
-package sos_test
+package symbolic_test
 
 import (
 	"testing"
 
-	"github.com/kwesiRutledge/goControl/sos"
+	"github.com/kwesiRutledge/goControl/symbolic"
 )
 
 func TestVariable_Name1(t *testing.T) {
 	// Create a variable
-	sos_var1 := sos.Variable{
+	sos_var1 := symbolic.Variable{
 		Name: "Christopher",
 	}
 
@@ -24,7 +24,7 @@ func TestVariable_GetVariableVector1(t *testing.T) {
 	vectorDim1 := 5
 
 	// Algorithm
-	vectorOfVariables, err := sos.GetVariableVector(baseName1, vectorDim1)
+	vectorOfVariables, err := symbolic.GetVariableVector(baseName1, vectorDim1)
 	if err != nil {
 		t.Errorf("There was an error collecting the variable vector: %v", err)
 	}
@@ -44,7 +44,7 @@ Description:
 */
 func TestVariable_String1(t *testing.T) {
 	// Constants
-	sos_var1 := sos.Variable{
+	sos_var1 := symbolic.Variable{
 		Name: "James",
 	}
 
@@ -63,7 +63,7 @@ Description:
 func TestVariable_Multiply1(t *testing.T) {
 	// Constants
 	coeff_val := 1.0
-	sos_var1 := sos.Variable{
+	sos_var1 := symbolic.Variable{
 		Name: "James",
 	}
 
@@ -73,12 +73,12 @@ func TestVariable_Multiply1(t *testing.T) {
 		t.Errorf("There was an error multiplying a variable with a coefficient! %v", err)
 	}
 
-	prod1, _ := prodOut.(*sos.Monomial)
+	prod1, _ := prodOut.(*symbolic.Monomial)
 	if prod1.Coefficient != coeff_val {
 		t.Errorf("The coefficient was %v; Expected %v", prod1.Coefficient, coeff_val)
 	}
 
-	if prod1.Variables[0] != &sos_var1 {
+	if prod1.Variables[0] != sos_var1 {
 		t.Errorf("The address of variable should be %v; Received %v", &sos_var1, prod1.Variables[0])
 	}
 }
@@ -91,11 +91,11 @@ Description:
 */
 func TestVariable_Multiply2(t *testing.T) {
 	// Constants
-	sos_var1 := sos.Variable{
+	sos_var1 := symbolic.Variable{
 		Name: "James",
 	}
 
-	sos_var2 := sos.Variable{
+	sos_var2 := symbolic.Variable{
 		Name: "Madison",
 	}
 
@@ -105,12 +105,12 @@ func TestVariable_Multiply2(t *testing.T) {
 		t.Errorf("There was an error multiplying a variable with a coefficient! %v", err)
 	}
 
-	prod1, _ := prodOut.(*sos.Monomial)
+	prod1, _ := prodOut.(*symbolic.Monomial)
 	if prod1.Coefficient != 1.0 {
 		t.Errorf("The coefficient was %v; Expected 1", prod1.Coefficient)
 	}
 
-	if prod1.Variables[0] != &sos_var1 {
+	if prod1.Variables[0] != sos_var1 {
 		t.Errorf("The address of variable should be %v; Received %v", &sos_var1, prod1.Variables[0])
 	}
 
@@ -127,11 +127,11 @@ Description:
 */
 func TestVariable_Multiply3(t *testing.T) {
 	// Constants
-	sos_var1 := sos.Variable{
+	sos_var1 := symbolic.Variable{
 		Name: "James",
 	}
 
-	sos_var2 := sos.Variable{
+	sos_var2 := symbolic.Variable{
 		Name: "Madison",
 	}
 
@@ -141,16 +141,16 @@ func TestVariable_Multiply3(t *testing.T) {
 		t.Errorf("There was an error multiplying a variable with a coefficient! %v", err)
 	}
 
-	prod1, _ := prodOut.(*sos.Monomial)
+	prod1, _ := prodOut.(*symbolic.Monomial)
 	if prod1.Coefficient != 1.0 {
 		t.Errorf("The coefficient was %v; Expected 1", prod1.Coefficient)
 	}
 
-	if prod1.Variables[0] != &sos_var1 {
+	if prod1.Variables[0] != sos_var1 {
 		t.Errorf("The address of variable should be %v; Received %v", &sos_var1, prod1.Variables[0])
 	}
 
-	if prod1.Variables[1] != &sos_var2 {
+	if prod1.Variables[1] != sos_var2 {
 		t.Errorf("The address of variable should be %v; Received %v", &sos_var2, prod1.Variables[1])
 	}
 }
@@ -163,15 +163,15 @@ Description:
 */
 func TestVariable_Multiply4(t *testing.T) {
 	// Constants
-	sos_var1 := sos.Variable{
+	sos_var1 := symbolic.Variable{
 		Name: "James",
 	}
-	sos_var2 := sos.Variable{
+	sos_var2 := symbolic.Variable{
 		Name: "Madison",
 	}
-	monom1 := sos.Monomial{
+	monom1 := symbolic.Monomial{
 		Coefficient: 3.0,
-		Variables:   []*sos.Variable{&sos_var1, &sos_var2},
+		Variables:   []symbolic.Variable{sos_var1, sos_var2},
 		Exponents:   []int{5, 7},
 	}
 
@@ -181,7 +181,7 @@ func TestVariable_Multiply4(t *testing.T) {
 		t.Errorf("There was an error multiplying a variable with a monomial: %v", err)
 	}
 
-	prod1, _ := prodOut.(*sos.Monomial)
+	prod1, _ := prodOut.(*symbolic.Monomial)
 	if prod1.Coefficient != monom1.Coefficient {
 		t.Errorf("The coefficient was %v; Expected %v", prod1.Coefficient, monom1.Coefficient)
 	}
@@ -206,15 +206,15 @@ Description:
 */
 func TestVariable_Multiply5(t *testing.T) {
 	// Constants
-	sos_var1 := sos.Variable{
+	sos_var1 := symbolic.Variable{
 		Name: "James",
 	}
-	sos_var2 := sos.Variable{
+	sos_var2 := symbolic.Variable{
 		Name: "Madison",
 	}
-	monom1 := sos.Monomial{
+	monom1 := symbolic.Monomial{
 		Coefficient: 3.0,
-		Variables:   []*sos.Variable{&sos_var1, &sos_var2},
+		Variables:   []symbolic.Variable{sos_var1, sos_var2},
 		Exponents:   []int{5, 7},
 	}
 
@@ -224,7 +224,7 @@ func TestVariable_Multiply5(t *testing.T) {
 		t.Errorf("There was an error multiplying a variable with a monomial: %v", err)
 	}
 
-	prod1, _ := prodOut.(*sos.Monomial)
+	prod1, _ := prodOut.(*symbolic.Monomial)
 	if prod1.Coefficient != monom1.Coefficient {
 		t.Errorf("The coefficient was %v; Expected %v", prod1.Coefficient, monom1.Coefficient)
 	}
@@ -254,12 +254,12 @@ func TestVariable_FindVariableInSlice1(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Variable{Name: "Lupe Fiasco"},
+		symbolic.Variable{Name: "Lupe Fiasco"},
 	}
 
 	// Algorithm
-	if sos.FindVariableInSlice(crazySlice) != 2 {
-		t.Errorf("The variable was found at index %v; expected 2.", sos.FindVariableInSlice(crazySlice))
+	if symbolic.FindVariableInSlice(crazySlice) != 2 {
+		t.Errorf("The variable was found at index %v; expected 2.", symbolic.FindVariableInSlice(crazySlice))
 	}
 }
 
@@ -276,12 +276,12 @@ func TestVariable_FindVariableInSlice2(t *testing.T) {
 	crazySlice := []interface{}{
 		"total",
 		2.3,
-		sos.Monomial{},
+		symbolic.Monomial{},
 	}
 
 	// Algorithm
-	if sos.FindVariableInSlice(crazySlice) != -1 {
-		t.Errorf("The variable was found at index %v; expected -1.", sos.FindVariableInSlice(crazySlice))
+	if symbolic.FindVariableInSlice(crazySlice) != -1 {
+		t.Errorf("The variable was found at index %v; expected -1.", symbolic.FindVariableInSlice(crazySlice))
 	}
 }
 
@@ -293,11 +293,11 @@ Description:
 */
 func TestVariable_IsEqualTo1(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"x"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"x"}
 
 	// Algorithm
-	if !v1.IsEqualTo(&v2) {
+	if !v1.IsEqualTo(v2) {
 		t.Errorf("The two variables %v and %v were declared to be different!", v1, v2)
 	}
 }
@@ -310,11 +310,11 @@ Description:
 */
 func TestVariable_IsEqualTo2(t *testing.T) {
 	// Constants
-	v1 := sos.Variable{"x"}
-	v2 := sos.Variable{"y"}
+	v1 := symbolic.Variable{"x"}
+	v2 := symbolic.Variable{"y"}
 
 	// Algorithm
-	if v1.IsEqualTo(&v2) {
+	if v1.IsEqualTo(v2) {
 		t.Errorf("The two variables %v and %v were declared to be the same!", v1, v2)
 	}
 }
